@@ -2,13 +2,15 @@
 
 ## Project Overview
 
-This project is a Python-based, interactive command-line web scraper. It takes a starting URL from the user, fetches the content, and uses the Google Gemini API to generate a concise, bulleted summary of the page. It also extracts and displays the top 10 unique hyperlinks from the page.
+This project is a Python-based, interactive command-line web scraper. It uses **Playwright** to launch a real browser, allowing it to handle modern, JavaScript-heavy websites and pages requiring a login.
 
-The tool then enters an interactive loop, allowing the user to select one of the found links to scrape next, enter a new URL, or exit the program. This creates a powerful way to "crawl" and understand websites through AI-generated summaries.
+The tool takes a starting URL, navigates to the page, and gives the user an opportunity to perform a manual login if needed. Once the user confirms, it scrapes the page content, uses the Google Gemini API to generate a concise, bulleted summary, and extracts the top 10 unique hyperlinks.
+
+The scraper then enters an interactive loop, allowing the user to select a link to follow, enter a new URL, or exit. This creates a powerful way to "crawl" and understand websites through AI-generated summaries, even those behind authentication.
 
 The core technologies used are:
 -   **Python 3:** The main programming language.
--   **Requests:** For making HTTP requests to fetch web page content.
+-   **Playwright:** For browser automation and fetching dynamic web page content.
 -   **BeautifulSoup4:** For parsing HTML and extracting text and links.
 -   **Google Generative AI (Gemini):** For summarizing the extracted text.
 
@@ -29,9 +31,15 @@ source venv/bin/activate
 ```
 
 **Install dependencies:**
-The required libraries are `requests`, `beautifulsoup4`, and `google-generativeai`. Install them using pip:
+All required libraries are listed in `requirements.txt`. Install them using pip:
 ```bash
-pip install requests beautifulsoup4 google-generativeai
+pip install -r requirements.txt
+```
+
+**Install browser binaries:**
+Playwright requires browser binaries to function. Install them with this command:
+```bash
+playwright install
 ```
 
 ### 2. Set API Key
@@ -47,10 +55,16 @@ Once the environment is activated and the API key is set, run the main script:
 ```bash
 python main.py
 ```
-The script will prompt you to enter a URL to begin scraping.
+The script will open a browser window and prompt you to enter a URL. If the site requires a login, you can perform it in the browser window.
+
+You can also specify a path to a custom configuration file:
+```bash
+python main.py /path/to/your/config.json
+```
 
 ## Development Conventions
 
--   **Dependency Management:** All dependencies are managed within a Python virtual environment (`venv`). The `.gitignore` file is configured to exclude this directory from version control.
--   **API Keys:** API keys are handled securely via environment variables and are not hardcoded in the source code.
--   **Modularity:** The code is organized into functions with specific responsibilities: `summarize_text` for AI interaction and `fetch_parse_summarize` for the core scraping logic.
+-   **Dependency Management:** All dependencies are managed with `pip` and a `requirements.txt` file within a Python virtual environment (`venv`).
+-   **Configuration:** The Gemini model is configured via a `config.json` file. The script searches for this file in the command-line path, the current directory, and the script's directory before using a default.
+-   **API Keys:** API keys are handled securely via environment variables and are not hardcoded.
+-   **Modularity:** The code is organized into functions with specific responsibilities, such as `summarize_text`, `fetch_parse_summarize`, and `load_config`.

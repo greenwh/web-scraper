@@ -1,0 +1,1 @@
+build an ai web scraper the can be called by other projects like vpa
