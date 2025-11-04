@@ -1,0 +1,16 @@
+# OneDrive Ignore File
+# Prevents syncing of files/folders to OneDrive while keeping them locally
+
+# Virtual environments (regenerate with setup scripts on each machine)
+venv/
+venv_wsl/
+
+# Node dependencies (regenerate with npm install on each machine)
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
+.pytest_cache/
+__pycache__/
