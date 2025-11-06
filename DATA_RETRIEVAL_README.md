@@ -104,6 +104,7 @@ This will:
 | `--provider` | gemini | AI provider: `gemini`, `claude`, or `openai` |
 | `--skip-conversion` | False | Skip AI conversion, save raw data only |
 | `--conversion-delay` | 2.0 | Delay between AI API calls (seconds) |
+| `--schema` | None | Path to existing schema JSON for consistent parsing |
 
 ### Output Options
 
@@ -368,6 +369,93 @@ python scrape_to_json.py https://example.com \
 # For when you want to process data yourself
 python scrape_to_json.py https://example.com --skip-conversion
 ```
+
+### Schema Reuse for Consistent Parsing
+
+One of the most powerful features is the ability to reuse schemas from previous crawls. This ensures consistent data structure across multiple runs or site updates.
+
+**Why use schema reuse?**
+- ✅ **Consistency**: Same field names and types across all crawls
+- ✅ **Speed**: Skip AI analysis step (faster, cheaper)
+- ✅ **Mergeability**: Easy to combine data from multiple runs
+- ✅ **Version Control**: Track website changes over time
+- ✅ **Multi-site**: Apply same schema to similar sites
+
+**Basic usage:**
+
+```bash
+# First crawl - generate schema
+python scrape_to_json.py https://example.com \
+    --output initial_data.json \
+    --output-dir ./data_v1
+
+# Save the schema for reuse
+cp ./data_v1/json/schema_analysis.json ./my_schema.json
+
+# Later crawl - reuse schema
+python scrape_to_json.py https://example.com \
+    --schema ./my_schema.json \
+    --output updated_data.json \
+    --output-dir ./data_v2
+```
+
+**Advanced: Multi-site with same schema**
+
+```bash
+# Generate schema from Site 1
+python scrape_to_json.py https://state1.example.gov \
+    --output state1.json
+
+# Apply same schema to Site 2 (similar structure)
+python scrape_to_json.py https://state2.example.gov \
+    --schema ./scraped_data/json/schema_analysis.json \
+    --output state2.json
+
+# Now both datasets have identical structure!
+```
+
+**When to reuse schemas:**
+
+1. **Regular Updates**: Website that gets updated monthly/quarterly
+   - Use the same schema each time
+   - Data remains mergeable and comparable
+
+2. **Multiple Similar Sites**: State agencies, regional sites, mirrors
+   - Generate schema from first site
+   - Apply to all others
+
+3. **Version Tracking**: Monitor website changes over time
+   - Keep baseline schema
+   - See what changes in content structure
+
+4. **Database Consistency**: Multiple data sources into one database
+   - One schema for all sources
+   - Simplified database design
+
+**Schema file format:**
+
+The schema file can be:
+- The complete `schema_analysis.json` (recommended)
+- Just the schema object itself
+
+Example `schema_analysis.json`:
+```json
+{
+  "content_type": "Medical Documentation",
+  "entities": ["condition", "criteria", "symptoms"],
+  "schema": {
+    "condition_name": "string",
+    "condition_code": "string",
+    "body_system": "string",
+    "criteria": "array",
+    "notes": "string"
+  },
+  "indexes": ["condition_code", "body_system"],
+  "notes": "Schema for medical disability criteria"
+}
+```
+
+**See also:** `examples/schema_reuse_example.sh` for a complete demonstration.
 
 ## Performance Tips
 

@@ -170,6 +170,33 @@ See the auto-generated `README.md` in your output directory for complete example
 
 **Recommendation:** Start with Gemini, switch to Claude if you need higher accuracy for complex content.
 
+## Pro Tip: Reuse Schemas for Consistency
+
+Want consistent data structure across multiple crawls? Save and reuse your schema!
+
+```bash
+# First crawl - generates schema automatically
+python scrape_to_json.py https://example.com --output v1.json
+
+# Later crawl - reuse the schema for consistency
+python scrape_to_json.py https://example.com \
+    --schema ./scraped_data/json/schema_analysis.json \
+    --output v2.json
+```
+
+**Benefits:**
+- ✅ Same field names every time
+- ✅ Easy to merge datasets
+- ✅ Faster (skips AI analysis)
+- ✅ Works for similar sites too!
+
+**Perfect for:**
+- Regular website monitoring
+- Multiple similar sites (e.g., state agencies)
+- Tracking changes over time
+
+See `examples/schema_reuse_example.sh` for more details!
+
 ## Troubleshooting
 
 ### "No module named 'playwright'"

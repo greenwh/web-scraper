@@ -1,0 +1,23 @@
+{
+  "content_type": "Medical Documentation",
+  "entities": [
+    "condition",
+    "criteria",
+    "body_system"
+  ],
+  "schema": {
+    "condition_name": "string",
+    "condition_code": "string",
+    "body_system": "string",
+    "criteria": "array of objects",
+    "severity_levels": "array of strings",
+    "diagnostic_requirements": "text",
+    "notes": "text"
+  },
+  "indexes": [
+    "condition_code",
+    "body_system",
+    "condition_name"
+  ],
+  "notes": "Schema for medical disability criteria (e.g., SSA Blue Book)"
+}

@@ -267,6 +267,7 @@ Extract complete Social Security disability criteria for offline database use.
 ✅ Offline HTML and data storage
 ✅ Multi-AI provider support (Gemini, Claude, OpenAI)
 ✅ Automatic schema generation from content analysis
+✅ **Schema reuse for consistent parsing across multiple runs**
 ✅ Structured JSON export with metadata
 ✅ Database integration documentation
 ✅ Progress tracking and resumption

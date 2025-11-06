@@ -45,10 +45,17 @@ Examples:
   # Include only specific URL patterns
   python scrape_to_json.py https://example.com --include "/docs/" --include "/api/"
 
+  # Reuse existing schema for consistent parsing
+  python scrape_to_json.py https://example.com --schema ./scraped_data/json/schema_analysis.json
+
 AI Providers:
   gemini  - Google Gemini (requires GOOGLE_API_KEY)
   claude  - Anthropic Claude (requires ANTHROPIC_API_KEY)
   openai  - OpenAI GPT (requires OPENAI_API_KEY)
+
+Schema Reuse:
+  Use --schema to provide a pre-existing schema from a previous crawl.
+  This ensures consistent data structure across multiple runs or site updates.
         """
     )
 
@@ -115,6 +122,11 @@ AI Providers:
         default=2.0,
         help="Delay between AI API calls in seconds (default: 2.0)"
     )
+    ai_group.add_argument(
+        "--schema",
+        type=str,
+        help="Path to existing schema JSON file for consistent parsing (optional)"
+    )
 
     # Output options
     output_group = parser.add_argument_group("Output Options")
@@ -174,18 +186,52 @@ def convert_to_json(args, output_dir: Path, scraped_data: list) -> Path:
     # Initialize AI converter
     converter = AIDataConverter(provider=args.provider)
 
-    # Analyze data structure
-    print("\nAnalyzing data structure...")
-    analysis = converter.analyze_data_structure(scraped_data)
+    # Check if a schema file was provided
+    if args.schema:
+        print(f"\nUsing provided schema from: {args.schema}")
+        try:
+            with open(args.schema, 'r', encoding='utf-8') as f:
+                schema_data = json.load(f)
+
+            # If the file contains a full analysis with 'schema' key, extract it
+            if 'schema' in schema_data:
+                analysis = schema_data
+                print("Loaded schema from analysis file")
+            else:
+                # Otherwise, assume the file is the schema itself
+                analysis = {
+                    'content_type': 'Provided schema',
+                    'entities': [],
+                    'schema': schema_data,
+                    'indexes': [],
+                    'notes': 'Schema provided by user for consistent parsing'
+                }
+                print("Loaded schema directly from file")
+
+            print(f"  Content Type: {analysis.get('content_type', 'Unknown')}")
+            print(f"  Using pre-defined schema for consistent parsing")
+
+        except FileNotFoundError:
+            print(f"ERROR: Schema file not found: {args.schema}")
+            print("Falling back to automatic schema generation...")
+            analysis = converter.analyze_data_structure(scraped_data)
+        except json.JSONDecodeError as e:
+            print(f"ERROR: Invalid JSON in schema file: {e}")
+            print("Falling back to automatic schema generation...")
+            analysis = converter.analyze_data_structure(scraped_data)
+    else:
+        # Analyze data structure automatically
+        print("\nAnalyzing data structure...")
+        analysis = converter.analyze_data_structure(scraped_data)
+
+        print(f"\nData Analysis:")
+        print(f"  Content Type: {analysis.get('content_type', 'Unknown')}")
+        print(f"  Entities: {', '.join(analysis.get('entities', []))}")
 
     # Save analysis
     analysis_file = output_dir / "json" / "schema_analysis.json"
     with open(analysis_file, 'w', encoding='utf-8') as f:
         json.dump(analysis, f, indent=2, ensure_ascii=False)
-
-    print(f"\nData Analysis:")
-    print(f"  Content Type: {analysis.get('content_type', 'Unknown')}")
-    print(f"  Entities: {', '.join(analysis.get('entities', []))}")
     print(f"  Schema saved to: {analysis_file}")
 
     # Determine output file

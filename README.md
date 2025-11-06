@@ -8,6 +8,7 @@ A powerful Python tool for intelligent web scraping with two operational modes: 
 - **🌐 JavaScript Support**: Full browser automation via Playwright
 - **📦 Offline Storage**: Save websites for offline analysis
 - **🗃️ Database-Ready JSON**: Auto-generated schemas for easy database integration
+- **🔄 Schema Reuse**: Use existing schemas for consistent parsing across runs
 - **🎯 Smart Filtering**: Include/exclude URL patterns, domain restrictions
 - **📊 Structured Data**: Handles both textual and tabular content
 - **📝 Auto Documentation**: Generates README with database examples
@@ -135,6 +136,18 @@ python scrape_to_json.py https://example.com \
     --max-pages 100
 ```
 
+### Example 5: Reuse Schema for Consistent Updates
+
+```bash
+# First crawl - generate schema
+python scrape_to_json.py https://example.com --output v1.json
+
+# Later - reuse schema for consistent structure
+python scrape_to_json.py https://example.com \
+    --schema ./scraped_data/json/schema_analysis.json \
+    --output v2.json
+```
+
 ## 🔧 Configuration Options
 
 ### Crawling Parameters
@@ -154,6 +167,7 @@ python scrape_to_json.py https://example.com \
 --provider gemini      # Google Gemini (default, fast & cheap)
 --provider claude      # Anthropic Claude (best for complex structures)
 --provider openai      # OpenAI GPT (balanced)
+--schema file.json     # Use existing schema for consistent parsing
 ```
 
 ### Output Options
