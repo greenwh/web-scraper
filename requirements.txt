@@ -2,3 +2,5 @@ requests
 beautifulsoup4
 google-generativeai
 playwright
+anthropic
+openai
