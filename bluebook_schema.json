@@ -1,0 +1,20 @@
+{
+  "content_type": "SSA Disability Blue Book - Medical Impairment Listings",
+  "entities": ["impairment_listing", "body_system", "criteria", "table"],
+  "schema": {
+    "listing_number": "string",
+    "listing_title": "string",
+    "body_system": "string",
+    "url": "string",
+    "main_content": "text",
+    "introduction": "text",
+    "criteria": "array of objects",
+    "tables": "array of arrays",
+    "headings": "array of objects",
+    "subsections": "array of objects",
+    "effective_date": "string",
+    "related_listings": "array of strings"
+  },
+  "indexes": ["listing_number", "listing_title", "body_system", "url"],
+  "notes": "Schema designed for SSA Blue Book adult and childhood impairment listings. Each listing represents a medical condition with specific criteria for disability determination. Tables contain detailed medical criteria, severity levels, and functional requirements."
+}
