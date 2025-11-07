@@ -167,6 +167,7 @@ See the auto-generated `README.md` in your output directory for complete example
 | **Gemini** | Getting started, large crawls | 💰 Cheapest | ⚡ Fast |
 | **Claude** | Complex structures, medical/legal | 💰💰 Mid | ⚡⚡ Good |
 | **OpenAI** | Balanced use cases | 💰💰 Mid | ⚡⚡ Good |
+| **Grok** | Alternative option | 💰💰 Mid | ⚡⚡ Good |
 
 **Recommendation:** Start with Gemini, switch to Claude if you need higher accuracy for complex content.
 

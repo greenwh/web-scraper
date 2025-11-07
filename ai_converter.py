@@ -1,7 +1,7 @@
 """
 AI-Powered JSON Converter
 Converts scraped website data into structured JSON using AI providers
-Supports: Claude (Anthropic), Gemini (Google), and OpenAI
+Supports: Claude (Anthropic), Gemini (Google), OpenAI, and Grok (xAI)
 """
 
 import os
@@ -103,6 +103,40 @@ class OpenAIProvider(AIProvider):
             return None
 
 
+class GrokProvider(AIProvider):
+    """xAI Grok provider."""
+
+    def __init__(self, api_key: Optional[str] = None, model: str = "grok-beta"):
+        self.api_key = api_key or os.environ.get("XAI_API_KEY")
+        if not self.api_key:
+            raise ValueError("XAI_API_KEY environment variable not set")
+
+        try:
+            import openai
+            # Grok uses OpenAI SDK with custom base URL
+            self.client = openai.OpenAI(
+                api_key=self.api_key,
+                base_url="https://api.x.ai/v1"
+            )
+            self.model = model
+        except ImportError:
+            raise ImportError("openai package not installed. Run: pip install openai")
+
+    def generate_response(self, prompt: str, max_tokens: int = 4000) -> Optional[str]:
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=max_tokens
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"Error with Grok API: {e}")
+            return None
+
+
 class AIDataConverter:
     """
     Converts scraped website data into structured JSON using AI.
@@ -113,7 +147,7 @@ class AIDataConverter:
         Initialize the converter with an AI provider.
 
         Args:
-            provider: AI provider name ('gemini', 'claude', or 'openai')
+            provider: AI provider name ('gemini', 'claude', 'openai', or 'grok')
             **provider_kwargs: Additional arguments for the provider
         """
         self.provider_name = provider.lower()
@@ -124,8 +158,10 @@ class AIDataConverter:
             self.provider = ClaudeProvider(**provider_kwargs)
         elif self.provider_name == "openai":
             self.provider = OpenAIProvider(**provider_kwargs)
+        elif self.provider_name == "grok":
+            self.provider = GrokProvider(**provider_kwargs)
         else:
-            raise ValueError(f"Unknown provider: {provider}. Use 'gemini', 'claude', or 'openai'")
+            raise ValueError(f"Unknown provider: {provider}. Use 'gemini', 'claude', 'openai', or 'grok'")
 
         print(f"Initialized AI converter with {self.provider_name} provider")
 

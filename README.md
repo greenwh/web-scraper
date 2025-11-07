@@ -167,6 +167,7 @@ python scrape_to_json.py https://example.com \
 --provider gemini      # Google Gemini (default, fast & cheap)
 --provider claude      # Anthropic Claude (best for complex structures)
 --provider openai      # OpenAI GPT (balanced)
+--provider grok        # xAI Grok (alternative option)
 --schema file.json     # Use existing schema for consistent parsing
 ```
 
