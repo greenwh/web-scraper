@@ -40,6 +40,21 @@ playwright install chromium
 
 ### 5. Set API Key
 
+**Recommended: Use .env file (easier)**
+
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit with your API key
+nano .env  # or vim, code, etc.
+
+# Add your key:
+# GOOGLE_API_KEY="your-api-key-here"
+```
+
+**Alternative: Export command**
+
 ```bash
 # For Gemini (recommended for getting started)
 export GOOGLE_API_KEY="your-api-key-here"
@@ -51,7 +66,7 @@ export ANTHROPIC_API_KEY="your-api-key-here"
 export OPENAI_API_KEY="your-api-key-here"
 ```
 
-**Pro tip:** Add the export to your `~/.bashrc` or `~/.zshrc` to make it permanent.
+**See [ENV_CONFIGURATION_GUIDE.md](ENV_CONFIGURATION_GUIDE.md) for complete .env setup and model customization.**
 
 ## Your First Crawl
 

@@ -9,6 +9,10 @@ import json
 from typing import Dict, List, Optional, Any
 from abc import ABC, abstractmethod
 import time
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class AIProvider(ABC):
@@ -23,16 +27,19 @@ class AIProvider(ABC):
 class GeminiProvider(AIProvider):
     """Google Gemini AI provider."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-2.0-flash-exp"):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         import google.generativeai as genai
 
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("GOOGLE_API_KEY environment variable not set")
 
+        # Use model from parameter, env var, or default
+        model_name = model or os.environ.get("GEMINI_API_MODEL") or "gemini-2.0-flash-exp"
+
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel(model)
-        self.model_name = model
+        self.model = genai.GenerativeModel(model_name)
+        self.model_name = model_name
 
     def generate_response(self, prompt: str, max_tokens: int = 4000) -> Optional[str]:
         try:
@@ -46,15 +53,17 @@ class GeminiProvider(AIProvider):
 class ClaudeProvider(AIProvider):
     """Anthropic Claude AI provider."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "claude-3-5-sonnet-20241022"):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
         if not self.api_key:
             raise ValueError("ANTHROPIC_API_KEY environment variable not set")
 
+        # Use model from parameter, env var, or default
+        self.model = model or os.environ.get("ANTHROPIC_API_MODEL") or "claude-3-5-sonnet-20241022"
+
         try:
             import anthropic
             self.client = anthropic.Anthropic(api_key=self.api_key)
-            self.model = model
         except ImportError:
             raise ImportError("anthropic package not installed. Run: pip install anthropic")
 
@@ -76,15 +85,17 @@ class ClaudeProvider(AIProvider):
 class OpenAIProvider(AIProvider):
     """OpenAI GPT provider."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4-turbo-preview"):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
 
+        # Use model from parameter, env var, or default
+        self.model = model or os.environ.get("OPENAI_API_MODEL") or "gpt-4-turbo-preview"
+
         try:
             import openai
             self.client = openai.OpenAI(api_key=self.api_key)
-            self.model = model
         except ImportError:
             raise ImportError("openai package not installed. Run: pip install openai")
 
@@ -106,10 +117,13 @@ class OpenAIProvider(AIProvider):
 class GrokProvider(AIProvider):
     """xAI Grok provider."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "grok-beta"):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or os.environ.get("XAI_API_KEY")
         if not self.api_key:
             raise ValueError("XAI_API_KEY environment variable not set")
+
+        # Use model from parameter, env var, or default
+        self.model = model or os.environ.get("XAI_API_MODEL") or "grok-beta"
 
         try:
             import openai
@@ -118,7 +132,6 @@ class GrokProvider(AIProvider):
                 api_key=self.api_key,
                 base_url="https://api.x.ai/v1"
             )
-            self.model = model
         except ImportError:
             raise ImportError("openai package not installed. Run: pip install openai")
 

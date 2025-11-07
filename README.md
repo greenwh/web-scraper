@@ -28,6 +28,11 @@ playwright install chromium
 
 **2. Set API Key:**
 ```bash
+# Recommended: Use .env file
+cp .env.example .env
+nano .env  # Add your API key
+
+# Or: Export command
 export GOOGLE_API_KEY="your-key"  # or ANTHROPIC_API_KEY or OPENAI_API_KEY
 ```
 
