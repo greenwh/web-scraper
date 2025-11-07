@@ -46,7 +46,7 @@ class GeminiProvider(AIProvider):
 class ClaudeProvider(AIProvider):
     """Anthropic Claude AI provider."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "claude-3-5-sonnet-20241022"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "claude-haiku-4-5-20251001"):
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
         if not self.api_key:
             raise ValueError("ANTHROPIC_API_KEY environment variable not set")
