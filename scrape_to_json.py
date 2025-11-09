@@ -52,6 +52,7 @@ AI Providers:
   gemini  - Google Gemini (requires GOOGLE_API_KEY)
   claude  - Anthropic Claude (requires ANTHROPIC_API_KEY)
   openai  - OpenAI GPT (requires OPENAI_API_KEY)
+  grok    - xAI Grok (requires XAI_API_KEY)
 
 Schema Reuse:
   Use --schema to provide a pre-existing schema from a previous crawl.
@@ -107,7 +108,7 @@ Schema Reuse:
     ai_group = parser.add_argument_group("AI Conversion Options")
     ai_group.add_argument(
         "--provider",
-        choices=["gemini", "claude", "openai"],
+        choices=["gemini", "claude", "openai", "grok"],
         default="gemini",
         help="AI provider for data conversion (default: gemini)"
     )

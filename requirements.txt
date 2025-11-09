@@ -4,3 +4,4 @@ google-generativeai
 playwright
 anthropic
 openai
+python-dotenv

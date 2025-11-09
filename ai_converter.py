@@ -1,7 +1,7 @@
 """
 AI-Powered JSON Converter
 Converts scraped website data into structured JSON using AI providers
-Supports: Claude (Anthropic), Gemini (Google), and OpenAI
+Supports: Claude (Anthropic), Gemini (Google), OpenAI, and Grok (xAI)
 """
 
 import os
@@ -9,6 +9,10 @@ import json
 from typing import Dict, List, Optional, Any
 from abc import ABC, abstractmethod
 import time
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class AIProvider(ABC):
@@ -23,16 +27,19 @@ class AIProvider(ABC):
 class GeminiProvider(AIProvider):
     """Google Gemini AI provider."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-2.0-flash-exp"):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         import google.generativeai as genai
 
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("GOOGLE_API_KEY environment variable not set")
 
+        # Use model from parameter, env var, or default
+        model_name = model or os.environ.get("GEMINI_API_MODEL") or "gemini-2.0-flash-exp"
+
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel(model)
-        self.model_name = model
+        self.model = genai.GenerativeModel(model_name)
+        self.model_name = model_name
 
     def generate_response(self, prompt: str, max_tokens: int = 4000) -> Optional[str]:
         try:
@@ -46,15 +53,17 @@ class GeminiProvider(AIProvider):
 class ClaudeProvider(AIProvider):
     """Anthropic Claude AI provider."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "claude-haiku-4-5-20251001"):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
         if not self.api_key:
             raise ValueError("ANTHROPIC_API_KEY environment variable not set")
 
+        # Use model from parameter, env var, or default (updated to latest Claude model)
+        self.model = model or os.environ.get("ANTHROPIC_API_MODEL") or "claude-haiku-4-5-20251001"
+
         try:
             import anthropic
             self.client = anthropic.Anthropic(api_key=self.api_key)
-            self.model = model
         except ImportError:
             raise ImportError("anthropic package not installed. Run: pip install anthropic")
 
@@ -76,15 +85,17 @@ class ClaudeProvider(AIProvider):
 class OpenAIProvider(AIProvider):
     """OpenAI GPT provider."""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4-turbo-preview"):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
 
+        # Use model from parameter, env var, or default
+        self.model = model or os.environ.get("OPENAI_API_MODEL") or "gpt-4-turbo-preview"
+
         try:
             import openai
             self.client = openai.OpenAI(api_key=self.api_key)
-            self.model = model
         except ImportError:
             raise ImportError("openai package not installed. Run: pip install openai")
 
@@ -103,6 +114,42 @@ class OpenAIProvider(AIProvider):
             return None
 
 
+class GrokProvider(AIProvider):
+    """xAI Grok provider."""
+
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+        self.api_key = api_key or os.environ.get("XAI_API_KEY")
+        if not self.api_key:
+            raise ValueError("XAI_API_KEY environment variable not set")
+
+        # Use model from parameter, env var, or default
+        self.model = model or os.environ.get("XAI_API_MODEL") or "grok-beta"
+
+        try:
+            import openai
+            # Grok uses OpenAI SDK with custom base URL
+            self.client = openai.OpenAI(
+                api_key=self.api_key,
+                base_url="https://api.x.ai/v1"
+            )
+        except ImportError:
+            raise ImportError("openai package not installed. Run: pip install openai")
+
+    def generate_response(self, prompt: str, max_tokens: int = 4000) -> Optional[str]:
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=max_tokens
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"Error with Grok API: {e}")
+            return None
+
+
 class AIDataConverter:
     """
     Converts scraped website data into structured JSON using AI.
@@ -113,7 +160,7 @@ class AIDataConverter:
         Initialize the converter with an AI provider.
 
         Args:
-            provider: AI provider name ('gemini', 'claude', or 'openai')
+            provider: AI provider name ('gemini', 'claude', 'openai', or 'grok')
             **provider_kwargs: Additional arguments for the provider
         """
         self.provider_name = provider.lower()
@@ -124,8 +171,10 @@ class AIDataConverter:
             self.provider = ClaudeProvider(**provider_kwargs)
         elif self.provider_name == "openai":
             self.provider = OpenAIProvider(**provider_kwargs)
+        elif self.provider_name == "grok":
+            self.provider = GrokProvider(**provider_kwargs)
         else:
-            raise ValueError(f"Unknown provider: {provider}. Use 'gemini', 'claude', or 'openai'")
+            raise ValueError(f"Unknown provider: {provider}. Use 'gemini', 'claude', 'openai', or 'grok'")
 
         print(f"Initialized AI converter with {self.provider_name} provider")
 
