@@ -1,0 +1,84 @@
+{
+  "content_type": "SSA Disability Listing of Impairments (Blue Book) - Adult Sections",
+  "entities": [
+    "Web Page",
+    "Disability Listing Category",
+    "Heading"
+  ],
+  "schema": {
+    "type": "object",
+    "description": "Schema for storing individual pages from the SSA Blue Book disability listings.",
+    "properties": {
+      "url": {
+        "type": "string",
+        "format": "uri",
+        "description": "The canonical URL of the web page. Should be unique."
+      },
+      "title": {
+        "type": "string",
+        "description": "The full title of the web page as found in the <title> tag."
+      },
+      "listing_id": {
+        "type": "string",
+        "pattern": "^\\d{1,2}\\.00$",
+        "description": "The numeric identifier for the disability listing (e.g., '1.00', '2.00'), extracted from the URL or Title."
+      },
+      "listing_name": {
+        "type": "string",
+        "description": "The descriptive name of the disability category (e.g., 'Musculoskeletal Disorders', 'Special Senses and Speech'), extracted from the Title."
+      },
+      "is_adult_listing": {
+        "type": "boolean",
+        "description": "Indicates if the listing pertains to adult disability criteria. Based on the sample data, this will always be true."
+      },
+      "headings": {
+        "type": "array",
+        "description": "A list of headings found on the page, preserving their level and text.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "integer",
+              "description": "The HTML heading level (e.g., 2 for <h2>)."
+            },
+            "text": {
+              "type": "string",
+              "description": "The text content of the heading."
+            }
+          },
+          "required": [
+            "level",
+            "text"
+          ]
+        }
+      },
+      "table_count": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "The number of tables identified on the page."
+      },
+      "content_excerpt": {
+        "type": "string",
+        "description": "An excerpt (first 500 characters) of the main text content from the page. Useful for snippets; not the full content."
+      }
+    },
+    "required": [
+      "url",
+      "title",
+      "listing_id",
+      "listing_name",
+      "is_adult_listing",
+      "headings",
+      "table_count",
+      "content_excerpt"
+    ]
+  },
+  "indexes": [
+    "url",
+    "listing_id",
+    "listing_name",
+    "headings.text",
+    "content_excerpt"
+  ],
+  "notes": "1. The 'Disability Evaluation Under Social Security' heading often contains concatenated text which might require further parsing if structured data from this specific heading is needed. 2. The 'table_count' field only reflects the number of tables; the actual table data is not captured in this schema. If table content is required, the schema would need extension (e.g., `tables: array of objects`). 3. All samples are 'Adult Listings'; if 'Childhood Listings' also exist, the `is_adult_listing` flag will correctly differentiate them. 4. `headings.text` and `content_excerpt` would benefit most from full-text indexing for efficient searching."
+}
